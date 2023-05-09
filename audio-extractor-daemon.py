@@ -5,10 +5,13 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 # Path to the folder where OBS saves the recordings
-folder_path = "/path/to/folder"
+folder_path = os.environ.get("OBS_RECORDING_FOLDER_PATH")
 
-# Path to the file where the list of processed files is stored
-processed_files_path = "/path/to/processed_files.txt"
+# Path to the txt file where the list of processed files is stored
+processed_files_path = os.environ.get("PROCESSED_FILES_PATH")
+
+# Path to the folder where the extracted audio should be saved
+output_folder = os.environ.get("EXTRACTED_AUDIO_FOLDER_PATH")
 
 # Read the list of processed files from the file
 if os.path.exists(processed_files_path):
@@ -21,8 +24,9 @@ else:
 wait_time = 60
 
 # Function to extract audio from a video file
-def extract_audio(video_path):
-    audio_path = os.path.join(folder_path, os.path.splitext(os.path.basename(video_path))[0] + ".wav")
+def extract_audio(video_path, output_folder):
+    output_filename = os.path.splitext(os.path.basename(video_path))[0] + ".wav"
+    audio_path = os.path.join(output_folder, output_filename)
     subprocess.run(["ffmpeg", "-i", video_path, "-vn", "-acodec", "pcm_s16le", "-ar", "44100", audio_path])
     return audio_path
 
